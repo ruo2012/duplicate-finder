@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Security.Cryptography;
 
 namespace DuplicateFinder
 {
@@ -68,6 +69,47 @@ namespace DuplicateFinder
             }
 
             return fileInfos;
+        }
+
+        /// <summary>
+        /// Computes MD5 Hash
+        /// </summary>
+        /// <param name="filePath">Target file path</param>
+        /// <returns>MD5 hash string</returns>
+        private static string ComputeMd5Hash(FileInfo file)
+        {
+            using (MD5 md5 = MD5.Create())
+            using (FileStream fs = file.OpenRead())
+            {
+                return BitConverter.ToString(md5.ComputeHash(fs)).Replace("-", "").ToLowerInvariant();
+            }
+        }
+
+        /// <summary>
+        /// Find duplicate files
+        /// </summary>
+        /// <param name="files">Target files</param>
+        /// <returns>DuplicateGroup objects</returns>
+        public static IEnumerable<DuplicateGroup> FindDuplicates(IEnumerable<FileInfo> files)
+        {
+            Dictionary<string, DuplicateGroup> dictionary = new Dictionary<string, DuplicateGroup>();
+
+            foreach(FileInfo file in files)
+            {
+                string hash = ComputeMd5Hash(file);
+
+                if(dictionary.ContainsKey(hash) && dictionary[hash].FileSize == file.Length)
+                {
+                    dictionary[hash].Add(file);
+                }
+                else
+                {
+                    dictionary[hash] = new DuplicateGroup(hash, file);
+                }
+            }
+
+            // Return DuplicateGroup objects containing more than one files
+            return dictionary.Values.Where(g => g.Count > 1);
         }
     }
 }
