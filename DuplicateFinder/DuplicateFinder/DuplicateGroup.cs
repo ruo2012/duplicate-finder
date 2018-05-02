@@ -31,7 +31,7 @@ namespace DuplicateFinder
         /// </summary>
         public int Count => Files.Count;
 
-        private List<FileInfo> Files;
+        private List<FileInfo> Files = new List<FileInfo>();
 
         public DuplicateGroup(string hash, FileInfo file)
         {

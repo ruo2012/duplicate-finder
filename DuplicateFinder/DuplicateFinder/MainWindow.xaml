@@ -3,10 +3,35 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:DuplicateFinder"
         mc:Ignorable="d"
         Title="MainWindow" Height="350" Width="525">
-    <Grid>
-        
+    <Grid DataContext="{Binding Source={StaticResource Locator}}">
+        <Grid.RowDefinitions>
+            <RowDefinition/>
+            <RowDefinition/>
+            <RowDefinition/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition/>
+            <ColumnDefinition/>
+        </Grid.ColumnDefinitions>
+
+        <TextBox Grid.Row="0" 
+                 Grid.Column="0" 
+                 TextWrapping="Wrap" 
+                 Text="{Binding Main.SelectedPath, Mode=OneWay}"
+                 Width="120"/>
+
+        <Button Grid.Row="0"
+                Grid.Column="1"
+                Content="Browse..."
+                Command="{Binding Main.BrowseCommand, Mode=OneWay}"
+                Width="75"/>
+
+        <Button Grid.Row="2"
+                Grid.Column="1"
+                Content="Start"
+                Command="{Binding Main.StartCommand, Mode=OneWay}"
+                Width="75"/>
     </Grid>
 </Window>

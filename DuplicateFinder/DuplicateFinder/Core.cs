@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Security.Cryptography;
@@ -96,6 +97,8 @@ namespace DuplicateFinder
 
             foreach(FileInfo file in files)
             {
+                Debug.WriteLine($"Computing hash of: {file.FullName}...");
+
                 string hash = ComputeMd5Hash(file);
 
                 if(dictionary.ContainsKey(hash) && dictionary[hash].FileSize == file.Length)
@@ -110,6 +113,15 @@ namespace DuplicateFinder
 
             // Return DuplicateGroup objects containing more than one files
             return dictionary.Values.Where(g => g.Count > 1);
+        }
+
+        public static IEnumerable<DuplicateGroup> FindDuplicates(string rootDirPath)
+        {
+            List<DirectoryInfo> dirList = new List<DirectoryInfo> { new DirectoryInfo(rootDirPath) };
+
+            IEnumerable<FileInfo> files = Find(dirList);
+
+            return FindDuplicates(files);
         }
     }
 }
