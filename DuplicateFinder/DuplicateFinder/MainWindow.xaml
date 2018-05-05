@@ -28,6 +28,16 @@
                 Command="{Binding Main.BrowseCommand, Mode=OneWay}"
                 Width="75"/>
 
+        <Label Grid.Row="1"
+               Grid.Column="0"
+               Content="{Binding Main.ProcessingFilePath, Mode=OneWay}"/>
+
+        <ProgressBar Grid.Row="2"
+                     Grid.Column="0"
+                     Maximum="{Binding Main.TotalFileCount, Mode=OneWay}"
+                     Value="{Binding Main.ProcessedFileCount, Mode=OneWay}"/>
+
+
         <Button Grid.Row="2"
                 Grid.Column="1"
                 Content="Start"

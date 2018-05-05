@@ -41,6 +41,9 @@ namespace DuplicateFinder.ViewModel
 
             BrowseCommand = new RelayCommand(Browse);
             StartCommand = new RelayCommand(Start, CanStart);
+            TotalFileCount = 1;
+            ProcessedFileCount = 0;
+            ProcessingFilePath = string.Empty;
         }
 
         /// <summary>
@@ -76,6 +79,29 @@ namespace DuplicateFinder.ViewModel
             }
         }
 
+        private int _totalFileCount;
+        public int TotalFileCount
+        {
+            get { return _totalFileCount; }
+            private set { Set(ref _totalFileCount, value); }
+        }
+
+        private int _processedFileCount;
+        public int ProcessedFileCount
+        {
+            get { return _processedFileCount; }
+            private set { Set(ref _processedFileCount, value); }
+        }
+
+        private string _processingFilePath;
+        public string ProcessingFilePath
+        {
+            get { return _processingFilePath; }
+            private set { Set(ref _processingFilePath, value); }
+        }
+
+        private Core Core { get; set; }
+
         private void Browse()
         {
             WinForms.FolderBrowserDialog folderBrowserDialog = new WinForms.FolderBrowserDialog();
@@ -96,12 +122,22 @@ namespace DuplicateFinder.ViewModel
             {
                 IsRunning = true;
 
-                IEnumerable<DuplicateGroup> duplicates = Core.FindDuplicates(SelectedPath);
+                Core = new Core();
+                Core.RootDirectoryPath = SelectedPath;
+                Core.OnProgressChanged += OnProgressChanged;
+
+                Core.FindDuplicates();
+
+                IEnumerable<DuplicateGroup> duplicates = Core.DuplicateGroups;
 
                 foreach (DuplicateGroup duplicate in duplicates)
                 {
                     Debug.WriteLine(duplicate);
                 }
+
+                TotalFileCount = 1;
+                ProcessedFileCount = 0;
+                ProcessingFilePath = string.Empty;
 
                 IsRunning = false;
             });
@@ -110,6 +146,13 @@ namespace DuplicateFinder.ViewModel
         private bool CanStart()
         {
             return !SelectedPath.IsNullOrEmpty() && !IsRunning;
+        }
+
+        private void OnProgressChanged()
+        {
+            TotalFileCount = Core.TotalFileCount;
+            ProcessedFileCount = Core.ProcessedFileCount;
+            ProcessingFilePath = Core.ProcessingFilePath;
         }
     }
 }
