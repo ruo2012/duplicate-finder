@@ -17,6 +17,18 @@ namespace DuplicateFinder
         /// </summary>
         public const string FileExtensionAny = "*.*";
 
+        public string RootDirectoryPath { get; set; }
+
+        public int TotalFileCount { get; private set; } = 0;
+
+        public int ProcessedFileCount { get; private set; } = 0;
+
+        public IEnumerable<DuplicateGroup> DuplicateGroups { get; private set; }
+
+        public string ProcessingFilePath { get; private set; }
+
+        public event Action OnProgressChanged;
+
         /// <summary>
         /// Find all files in given directories
         /// </summary>
@@ -86,22 +98,30 @@ namespace DuplicateFinder
             }
         }
 
-        /// <summary>
-        /// Find duplicate files
-        /// </summary>
-        /// <param name="files">Target files</param>
-        /// <returns>DuplicateGroup objects</returns>
-        public static IEnumerable<DuplicateGroup> FindDuplicates(IEnumerable<FileInfo> files)
+        public void FindDuplicates()
         {
+            if(RootDirectoryPath.IsNullOrEmpty())
+            {
+                throw new NullReferenceException("RootDirectoryPath cannot be null or empty.");
+            }
+
+            IEnumerable<FileInfo> files = Find(new List<DirectoryInfo> { new DirectoryInfo(RootDirectoryPath) });
+
             Dictionary<string, DuplicateGroup> dictionary = new Dictionary<string, DuplicateGroup>();
 
-            foreach(FileInfo file in files)
+            TotalFileCount = files.Count();
+            ProcessedFileCount = 0;
+
+            foreach (FileInfo file in files)
             {
                 Debug.WriteLine($"Computing hash of: {file.FullName}...");
+                ProcessingFilePath = file.DirectoryName;
+
+                OnProgressChanged();
 
                 string hash = ComputeMd5Hash(file);
 
-                if(dictionary.ContainsKey(hash) && dictionary[hash].FileSize == file.Length)
+                if (dictionary.ContainsKey(hash) && dictionary[hash].FileSize == file.Length)
                 {
                     dictionary[hash].Add(file);
                 }
@@ -109,19 +129,14 @@ namespace DuplicateFinder
                 {
                     dictionary[hash] = new DuplicateGroup(hash, file);
                 }
+
+                ProcessedFileCount++;
+
+                OnProgressChanged();
             }
 
             // Return DuplicateGroup objects containing more than one files
-            return dictionary.Values.Where(g => g.Count > 1);
-        }
-
-        public static IEnumerable<DuplicateGroup> FindDuplicates(string rootDirPath)
-        {
-            List<DirectoryInfo> dirList = new List<DirectoryInfo> { new DirectoryInfo(rootDirPath) };
-
-            IEnumerable<FileInfo> files = Find(dirList);
-
-            return FindDuplicates(files);
+            DuplicateGroups = dictionary.Values.Where(g => g.Count > 1);
         }
     }
 }
