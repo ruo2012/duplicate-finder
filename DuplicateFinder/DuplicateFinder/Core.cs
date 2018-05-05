@@ -115,7 +115,7 @@ namespace DuplicateFinder
             foreach (FileInfo file in files)
             {
                 Debug.WriteLine($"Computing hash of: {file.FullName}...");
-                ProcessingFilePath = file.DirectoryName;
+                ProcessingFilePath = file.FullName;
 
                 OnProgressChanged();
 

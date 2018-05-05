@@ -40,7 +40,7 @@
                   ItemsSource="{Binding Main.DuplicateGroups}">
             <TreeView.ItemTemplate>
                 <HierarchicalDataTemplate DataType="{x:Type local:DuplicateGroup}" ItemsSource="{Binding FilePaths}">
-                    <Label Content="{Binding Hash}"/>
+                    <Label Content="{Binding Name}"/>
                     <HierarchicalDataTemplate.ItemTemplate>
                         <DataTemplate DataType="{x:Type mscorlib:FileInfo}">
                             <Label Content="{Binding FullName}"/>
