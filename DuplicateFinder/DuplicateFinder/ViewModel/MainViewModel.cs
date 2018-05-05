@@ -3,6 +3,7 @@ using GalaSoft.MvvmLight.CommandWpf;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading.Tasks;
+using System.Linq;
 using WinForms = System.Windows.Forms;
 
 namespace DuplicateFinder.ViewModel
@@ -100,6 +101,13 @@ namespace DuplicateFinder.ViewModel
             private set { Set(ref _processingFilePath, value); }
         }
 
+        private List<DuplicateGroup> _duplicateGroups;
+        public List<DuplicateGroup> DuplicateGroups
+        {
+            get { return _duplicateGroups; }
+            set { Set(ref _duplicateGroups, value); }
+        }
+
         private Core Core { get; set; }
 
         private void Browse()
@@ -128,9 +136,9 @@ namespace DuplicateFinder.ViewModel
 
                 Core.FindDuplicates();
 
-                IEnumerable<DuplicateGroup> duplicates = Core.DuplicateGroups;
+                DuplicateGroups = Core.DuplicateGroups.ToList();
 
-                foreach (DuplicateGroup duplicate in duplicates)
+                foreach (DuplicateGroup duplicate in DuplicateGroups)
                 {
                     Debug.WriteLine(duplicate);
                 }
@@ -141,6 +149,11 @@ namespace DuplicateFinder.ViewModel
 
                 IsRunning = false;
             });
+        }
+
+        private void SetTreeView()
+        {
+            
         }
 
         private bool CanStart()

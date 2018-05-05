@@ -4,6 +4,8 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         mc:Ignorable="d"
+        xmlns:local="clr-namespace:DuplicateFinder"
+        xmlns:mscorlib="clr-namespace:System.IO;assembly=mscorlib"
         Title="MainWindow" Height="350" Width="525">
     <Grid DataContext="{Binding Source={StaticResource Locator}}">
         <Grid.RowDefinitions>
@@ -31,6 +33,24 @@
         <Label Grid.Row="1"
                Grid.Column="0"
                Content="{Binding Main.ProcessingFilePath, Mode=OneWay}"/>
+
+        <TreeView x:Name="treeView"
+                  Grid.Row="1"
+                  Grid.Column="1"
+                  ItemsSource="{Binding Main.DuplicateGroups}">
+            <TreeView.ItemTemplate>
+                <HierarchicalDataTemplate DataType="{x:Type local:DuplicateGroup}" ItemsSource="{Binding FilePaths}">
+                    <Label Content="{Binding Hash}"/>
+                    <HierarchicalDataTemplate.ItemTemplate>
+                        <DataTemplate DataType="{x:Type mscorlib:FileInfo}">
+                            <Label Content="{Binding FullName}"/>
+                        </DataTemplate>
+                    </HierarchicalDataTemplate.ItemTemplate>
+                </HierarchicalDataTemplate>
+            </TreeView.ItemTemplate>
+        </TreeView>
+
+
 
         <ProgressBar Grid.Row="2"
                      Grid.Column="0"
